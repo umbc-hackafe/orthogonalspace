@@ -14,9 +14,8 @@ Options:
   -c --config=<file>  Path to config file[default: /etc/orthogonalspace/conf.json].
 """
 
-import txaio
-txaio.use_asyncio()
 from autobahn.asyncio.wamp import ApplicationSession, ApplicationRunner
+import orthogonalspace
 import asyncio
 import docopt
 import logging
@@ -33,12 +32,12 @@ class OrthogonalSpaceComponent(ApplicationSession):
         super(self.__class__, self).__init__(*args, **kwargs)
         self.traceback_app = True
         self.db = Database(self.config.extra)
+        self.lobby = orthogonalspace.lobby.Lobby()
 
     @asyncio.coroutine
     def onJoin(self, details):
-        def echo(msg):
-            return str(msg[::-1])
-        yield from self.register(echo, u'space.orthogonal.echo')
+        yield from self.register(self.lobby.list_universes, u'space.orthogonal.lobby.list_universes')
+        yield from self.register(self.lobby.list_ships, u'space.orthogonal.lobby.list_ships')
 
         while True:
             self.publish(u'space.orthogonal.heartbeat', 'Hi')
