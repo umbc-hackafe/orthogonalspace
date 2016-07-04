@@ -174,7 +174,7 @@ def main():
         if not os.path.isfile(conf_path):
             sys.exit("You must provide a config file")
          
-        with open(arguments["config"]) as conf_file:
+        with open(conf_path) as conf_file:
             config = json.load(conf_file)
 
     except (OSError, IOError):
