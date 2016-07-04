@@ -3,7 +3,7 @@ var orthogonal = angular.module('orthogonal', ["vxWamp", "ngRoute", "ngCookies",
 orthogonal.config(function ($wampProvider) {
     $wampProvider.init({
         url: 'ws://' + window.location.hostname + ':8080/ws',
-        realm: 'realm1'
+        realm: 'orthogonalspace'
     });
 })
 
