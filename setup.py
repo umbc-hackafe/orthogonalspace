@@ -35,6 +35,7 @@ setup(
         'crossbar',
         'SQLAlchemy',
         'passlib',
+        'jsonpickle',
     ],
     data_files=[
         ('/usr/lib/systemd/system/', ['contrib/orthogonalspace.service']),

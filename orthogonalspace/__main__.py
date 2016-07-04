@@ -25,6 +25,7 @@ import os
 from orthogonalspace.database import Database
 from orthogonalspace.types import *
 from orthogonalspace.lobby import Lobby, LobbyShip
+from orthogonalspace.serializer import  JsonPickleSerializer
 
 LOG = logging.getLogger()
 
@@ -187,8 +188,10 @@ def main():
         os.environ.get("AUTOBAHN_DEMO_ROUTER", u"ws://127.0.0.1:8080/ws"),
         u'orthogonalspace',
         extra=config,
+        serializers=[JsonPickleSerializer]
     )
     runner.run(OrthogonalSpaceComponent)
+
 
 if __name__ == '__main__':
     main()
