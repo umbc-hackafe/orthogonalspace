@@ -81,7 +81,7 @@ class OrthogonalSpaceComponent(ApplicationSession):
             # Success!
             websessions = session.query(WebSession).filter(WebSession.user_id == user.ID).all()
             for i in websessions:
-                if (i.timestamp < (datetime.datetime.now() - datetime.timedelta(minutes=int(self.config.extra['session_duration']))) and i.user.name == username):
+                if i.expired(self.config.extra['session_duration']) and i.user.name == username:
                     session.delete(i)
             websession = WebSession(user.ID)
             websessionID = websession.uuid
@@ -105,7 +105,7 @@ class OrthogonalSpaceComponent(ApplicationSession):
             LOG.error("Could not find session {0} for user {1}".format(sessionID, username))
             session.close()
             return False
-        if (websession.timestamp > (datetime.datetime.now() - datetime.timedelta(minutes=int(self.config.extra['session_duration']))) and websession.user.name == username):
+        if not websession.expired(self.config.extra['session_duration']) and websession.user.name == username:
             LOG.info("Renewing session {0} for user {1}".format(sessionID, username))
             websession.timestamp = datetime.datetime.now()
             session.add(websession)
@@ -126,7 +126,7 @@ class OrthogonalSpaceComponent(ApplicationSession):
             LOG.error("Could not find session {0} for user {1} during logout".format(sessionID, username))
             session.close()
             return False
-        if (websession.timestamp > (datetime.datetime.now() - datetime.timedelta(minutes=int(self.config.extra['session_duration']))) and websession.user.name == username):
+        if not websession.expired(self.config.extra['session_duration']) and websession.user.name == username:
             LOG.info("Logging out user {0} from session {1}".format(username, sessionID))
             session.delete(websession)
             session.commit()

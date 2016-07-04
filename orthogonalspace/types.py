@@ -53,6 +53,9 @@ class WebSession(Base):
     timestamp = Column(DateTime)
     uuid = Column(String)
 
+    def expired(self, minutes):
+        return self.timestamp < datetime.datetime.now() - datetime.timedelta(minutes=int(minutes))
+
     def __init__(self, user_id):
         self.user_id = user_id
         self.timestamp = datetime.datetime.now()
