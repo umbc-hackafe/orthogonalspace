@@ -20,6 +20,13 @@ orthogonalControllers.controller('loginCtrl', ['$scope', '$wamp', '$location', '
                 }
             );
         };
+        $scope.add_user = function() {
+            $wamp.call('com.add_user', [$scope.username, $scope.password]).then(
+                function () {
+                    $scope.errorMessage = "User Created. Please Log In.";
+                }
+            );
+        };
     }
 ]);
 

@@ -58,6 +58,16 @@ class OrthogonalSpaceComponent(ApplicationSession):
             self.publish(u'space.orthogonal.heartbeat', 'Hi')
             yield from asyncio.sleep(1)
 
+    @wamp.register(u'com.add_user')
+    def add_user(self, username, password):
+        session = self.db.Session()
+        user = User()
+        user.name = username
+        user.password_hash = user.generate_hash(password)
+        session.add(user)
+        session.commit()
+        session.close()
+
     @wamp.register(u'com.login')
     def login(self, username, password):
         session = self.db.Session()

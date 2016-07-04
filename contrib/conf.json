@@ -1,0 +1,4 @@
+{
+  "db_uri": "sqlite:////var/orthogonalspace/database.db",
+  "session_duration": 3600
+}
