@@ -5,7 +5,7 @@
             "type": "router",
             "realms": [
                 {
-                    "name": "bridgesim",
+                    "name": "orthogonalspace",
                     "roles": [
                         {
                             "name": "anonymous",
@@ -51,7 +51,7 @@
         },
         {
             "type": "guest",
-	    "executable": "/home/dylan/pdev/bridgesim2/hello.py"
+	    "executable": "./orthogonalspace/__main__.py"
         }
     ]
 }

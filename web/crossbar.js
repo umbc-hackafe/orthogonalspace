@@ -42,7 +42,7 @@ if (document.location.origin == "file://") {
  //
  var connection = new autobahn.Connection({
     url: wsuri,
-    realm: "bridgesim"
+    realm: "orthogonalspace"
  });
 
 
@@ -106,7 +106,7 @@ if (document.location.origin == "file://") {
 
     t2 = setInterval(function () {
 
-       session.call('net.hackafe.bridgesim.echo', ["hello world" + x]).then(
+       session.call('space.orthogonal.echo', ["hello world" + x]).then(
           function (res) {
              console.log("echo() result:", res);
           },
