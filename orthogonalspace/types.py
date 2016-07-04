@@ -1,7 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import *
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declared_attr
 from passlib.hash import sha256_crypt
 import datetime
 import logging
@@ -11,14 +10,12 @@ LOG = logging.getLogger()
 
 Base = declarative_base()
 
+
 class User(Base):
     __tablename__ = 'users'
-    ID =  Column(Integer, primary_key=True)
+    ID = Column(Integer, primary_key=True)
     name = Column(String)
     password_hash = Column(String)
-    public_attrs = [
-        name,
-    ]
 
     def __init__(self, session=None):
         pass
@@ -44,9 +41,10 @@ class User(Base):
         """
         return sha256_crypt.verify(password, self.password_hash)
 
+
 class WebSession(Base):
     __tablename__ = 'sessions'
-    ID =  Column(Integer, primary_key=True)
+    ID = Column(Integer, primary_key=True)
     name = Column(String)
     user_id = Column(Integer, ForeignKey('users.ID'))
     user = relationship("User")

@@ -88,6 +88,7 @@ class Lobby:
     @wamp.register(u'space.orthogonal.lobby.ship.create')
     async def create_ship(self):
         ship = LobbyShip(self.session)
+
         self.ships.append(ship)
         self.session.publish(Lobby.EVENT_SHIPS_UPDATED, self.ships)
 
