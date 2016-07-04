@@ -5,7 +5,7 @@
             "type": "router",
             "realms": [
                 {
-                    "name": "realm1",
+                    "name": "bridgesim",
                     "roles": [
                         {
                             "name": "anonymous",
@@ -50,28 +50,8 @@
             ]
         },
         {
-            "type": "container",
-            "options": {
-                "pythonpath": [
-                    ".."
-                ]
-            },
-            "components": [
-                {
-                    "type": "class",
-                    "classname": "hello.AppSession",
-                    "realm": "realm1",
-                    "transport": {
-                        "type": "websocket",
-                        "endpoint": {
-                            "type": "tcp",
-                            "host": "127.0.0.1",
-                            "port": 8080
-                        },
-                        "url": "ws://127.0.0.1:8080/ws"
-                    }
-                }
-            ]
+            "type": "guest",
+	    "executable": "/home/dylan/pdev/bridgesim2/hello.py"
         }
     ]
 }
