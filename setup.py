@@ -16,7 +16,7 @@ setup(
     license="GPLv3",
     author='Dylan Whichard',
     author_email='dylan@hackafe.net',
-    url='git@github.com:umbc-hackafe/orthogonalspace.git',
+    url='https://github.com/umbc-hackafe/orthogonalspace',
     keywords=[
         'game',
     ],
