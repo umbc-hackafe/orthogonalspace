@@ -15,7 +15,6 @@ Options:
 """
 
 from autobahn.asyncio.wamp import ApplicationSession, ApplicationRunner
-import orthogonalspace
 from autobahn import wamp
 import asyncio
 import docopt
@@ -25,6 +24,7 @@ import sys
 import os
 from orthogonalspace.database import Database
 from orthogonalspace.types import *
+from orthogonalspace.lobby import Lobby
 
 LOG = logging.getLogger()
 
@@ -33,7 +33,7 @@ class OrthogonalSpaceComponent(ApplicationSession):
         super(self.__class__, self).__init__(*args, **kwargs)
         self.traceback_app = True
         self.db = Database(self.config.extra)
-        self.lobby = orthogonalspace.lobby.Lobby()
+        self.lobby = Lobby()
 
     @asyncio.coroutine
     def onJoin(self, details):
