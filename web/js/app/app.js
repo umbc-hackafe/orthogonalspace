@@ -22,6 +22,10 @@ orthogonal.config(['$routeProvider',
                 templateUrl: 'templates/logout.html',
                 controller: 'logoutCtrl',
             }).
+            when('/lobby', {
+                templateUrl: 'templates/lobby.html',
+                controller: 'lobbyCtrl',
+            }).
             otherwise({
                 redirectTo: '/'
             }

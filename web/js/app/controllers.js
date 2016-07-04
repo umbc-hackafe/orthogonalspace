@@ -46,3 +46,18 @@ orthogonalControllers.controller('logoutCtrl', ['$scope', '$wamp', '$cookies',
     }
 ]);
 
+orthogonalControllers.controller('lobbyCtrl', ['$scope', '$wamp',
+    function($scope, $wamp) {
+        $scope.createShip = function() {
+            $wamp.call('space.orthogonal.lobby.ship.create').then(
+                function(res) {
+                    if (res != null) {
+                        log.info(res);
+                    } else {
+                        $scope.message = "Error: Could not create ship.";
+                    }
+                }
+            )
+        };
+    }
+]);

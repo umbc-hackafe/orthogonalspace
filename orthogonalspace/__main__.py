@@ -24,7 +24,7 @@ import sys
 import os
 from orthogonalspace.database import Database
 from orthogonalspace.types import *
-from orthogonalspace.lobby import Lobby
+from orthogonalspace.lobby import Lobby, LobbyShip
 
 LOG = logging.getLogger()
 
@@ -33,15 +33,17 @@ class OrthogonalSpaceComponent(ApplicationSession):
         super(self.__class__, self).__init__(*args, **kwargs)
         self.traceback_app = True
         self.db = Database(self.config.extra)
-        self.lobby = Lobby()
+        self.lobby = Lobby(self)
 
     @asyncio.coroutine
     def onJoin(self, details):
-        yield from self.register(self.lobby.list_universes, u'space.orthogonal.lobby.list_universes')
-        yield from self.register(self.lobby.list_ships, u'space.orthogonal.lobby.list_ships')
-        def echo(msg):
-            return str(msg[::-1])
-        yield from self.register(echo, u'space.orthogonal.echo')
+
+        res = wamp.register(Lobby)
+        if isinstance(res, wamp.protocol.Registration):
+            LOG.debug("Registered procedure {} successfully".format(res))
+        else:
+            LOG.error("Failed to register procedure {}".format(res))
+
         results = yield from self.register(self)
         for res in results:
             if isinstance(res, wamp.protocol.Registration):
