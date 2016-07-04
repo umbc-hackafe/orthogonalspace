@@ -36,22 +36,19 @@ class OrthogonalSpaceComponent(ApplicationSession):
         self.db = Database(self.config.extra)
         self.lobby = Lobby(self)
 
-    @asyncio.coroutine
-    def onJoin(self, details):
-
-        res = wamp.register(Lobby)
-        if isinstance(res, wamp.protocol.Registration):
-            LOG.debug("Registered procedure {} successfully".format(res))
-        else:
-            LOG.error("Failed to register procedure {}".format(res))
-
-        results = yield from self.register(self)
+    async def register_object(self, obj):
+        results = await self.register(obj)
         for res in results:
             if isinstance(res, wamp.protocol.Registration):
                 LOG.debug("Registered procedure {} successfully".format(res))
             else:
-                LOG.error("Failed to register procedure {}".format(res))
-        results = yield from self.subscribe(self)
+                LOG.error("Failed to register procedure {} on {}".format(res, obj))
+
+    async def onJoin(self, details):
+        for target in [self, self.lobby]:
+            await self.register_object(target)
+
+        results = await self.subscribe(self)
         for res in results:
             if isinstance(res, wamp.protocol.Subscription):
                 LOG.debug("Subscribed handler with subscription ID {}".format(res))
@@ -59,7 +56,7 @@ class OrthogonalSpaceComponent(ApplicationSession):
                 LOG.error("Failed to subscribe handler: {}".format(res))
         while True:
             self.publish(u'space.orthogonal.heartbeat', 'Hi')
-            yield from asyncio.sleep(1)
+            await asyncio.sleep(1)
 
     @wamp.register(u'com.add_user')
     def add_user(self, username, password):
