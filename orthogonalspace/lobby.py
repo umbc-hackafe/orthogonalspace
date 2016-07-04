@@ -17,6 +17,18 @@ class LobbyShip:
     EVENT_POSITION_FILLED = u'space.orthogonal.lobby.ship.event.position_filled'
     EVENT_POSITION_VACATED = u'space.orthogonal.lobby.ship.event.position_vacated'
 
+    @wamp.register(u'space.orthogonal.lobby.ship.enlist')
+    async def _enlist(ship, user, position):
+        await ship.enlist(user, position)
+
+    @wamp.register(u'space.orthogonal.lobby.ship.leave')
+    async def _leave(ship ,user, position):
+        await ship.leave(user, position)
+
+    @wamp.register(u'space.orthogonal.lobby.ship.set_name')
+    async def _set_name(ship, name):
+        await ship.set_name(name)
+
     def __init__(self, session, name="Shippy McShipFace", roles=None):
         self.name = name
         self.officers = {}
@@ -25,7 +37,6 @@ class LobbyShip:
         self.roles = roles
         self.session = session
 
-    @wamp.register(u'space.orthogonal.lobby.ship.set_name')
     async def set_name(self, name):
         if isinstance(name, str):
             self.name = name
@@ -33,7 +44,6 @@ class LobbyShip:
         else:
             raise ValueError("`name` must be str")
 
-    @wamp.register(u'space.orthogonal.lobby.ship.enlist')
     async def enlist(self, user, position):
         if position not in self.roles:
             raise ValueError("Role '" + position + "' does not exist")
@@ -44,7 +54,6 @@ class LobbyShip:
         self.officers[position] = user
         self.session.publish(LobbyShip.EVENT_POSITION_FILLED, position, user)
 
-    @wamp.register(u'space.orthogonal.lobby.ship.leave')
     async def leave(self, user, position):
         if position not in self.roles:
             raise ValueError("Role '" + position + "' does not exist")
