@@ -5,7 +5,8 @@
 
 from autobahn.wamp.serializer import *
 from autobahn.wamp.interfaces import IObjectSerializer, ISerializer
-
+import jsonpickle
+import six
 
 class JsonPickleObjectSerializer:
 
@@ -25,7 +26,7 @@ class JsonPickleObjectSerializer:
         Implements :func:`autobahn.wamp.interfaces.IObjectSerializer.serialize`
         """
         try:
-            _dumps = lambda obj: json.dumps(obj, separators=(',', ':'), ensure_ascii=False)
+            _dumps = lambda obj: jsonpickle.dumps(obj)
             s = _dumps(obj)
             if isinstance(s, six.text_type):
                 s = s.encode('utf8')
@@ -46,7 +47,7 @@ class JsonPickleObjectSerializer:
             chunks = [payload]
         if len(chunks) == 0:
             raise Exception("batch format error")
-        _loads = json.loads
+        _loads = jsonpickle.loads
         return [_loads(data.decode('utf8')) for data in chunks]
 
 IObjectSerializer.register(JsonPickleObjectSerializer)

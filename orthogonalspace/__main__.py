@@ -185,7 +185,7 @@ def main():
         os.environ.get("AUTOBAHN_DEMO_ROUTER", u"ws://127.0.0.1:8080/ws"),
         u'orthogonalspace',
         extra=config,
-        serializers=[JsonPickleSerializer],
+        serializers=[JsonPickleSerializer()],
     )
     runner.run(OrthogonalSpaceComponent)
 
