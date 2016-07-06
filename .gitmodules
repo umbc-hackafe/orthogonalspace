@@ -1,0 +1,3 @@
+[submodule "web/js/jsonpicklejs"]
+	path = web/js/jsonpicklejs
+	url = https://github.com/cuthbertLab/jsonpickleJS
