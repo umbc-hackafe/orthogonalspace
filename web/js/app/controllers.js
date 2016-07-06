@@ -52,7 +52,7 @@ orthogonalControllers.controller('lobbyCtrl', ['$scope', '$wamp',
             $wamp.call('space.orthogonal.lobby.ship.create').then(
                 function(res) {
                     if (res != null) {
-                        log.info(res);
+                        console.log(res);
                     } else {
                         $scope.message = "Error: Could not create ship.";
                     }
