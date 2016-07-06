@@ -29,6 +29,7 @@ from orthogonalspace.serializer import serialize
 
 LOG = logging.getLogger()
 
+
 class OrthogonalSpaceComponent(ApplicationSession):
     def __init__(self, *args, **kwargs):
         super(self.__class__, self).__init__(*args, **kwargs)
@@ -139,6 +140,7 @@ class OrthogonalSpaceComponent(ApplicationSession):
             LOG.info("User {0} failed to log out with session {1}".format(username, sessionID))
             session.close()
             return False
+
 
 def main():
     # load command-line options
