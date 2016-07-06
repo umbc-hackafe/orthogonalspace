@@ -1,3 +1,5 @@
+import orthogonalspace.utils
+from orthogonalspace import serializer
 from autobahn import wamp
 
 ROLE_NAMES = {
@@ -18,14 +20,17 @@ class LobbyShip:
     EVENT_POSITION_VACATED = u'space.orthogonal.lobby.ship.event.position_vacated'
 
     @wamp.register(u'space.orthogonal.lobby.ship.enlist')
+    @orthogonalspace.utils.serial
     async def _enlist(ship, user, position):
         await ship.enlist(user, position)
 
     @wamp.register(u'space.orthogonal.lobby.ship.leave')
+    @orthogonalspace.utils.serial
     async def _leave(ship ,user, position):
         await ship.leave(user, position)
 
     @wamp.register(u'space.orthogonal.lobby.ship.set_name')
+    @orthogonalspace.utils.serial
     async def _set_name(ship, name):
         await ship.set_name(name)
 
@@ -36,6 +41,9 @@ class LobbyShip:
             roles = ROLES
         self.roles = roles
         self.session = session
+
+    def __getstate__(self):
+        return orthogonalspace.utils.filter_attrs(self, 'session')
 
     async def set_name(self, name):
         if isinstance(name, str):
@@ -65,6 +73,7 @@ class LobbyShip:
         self.session.publish(LobbyShip.EVENT_POSITION_VACATED, position)
 
     @wamp.register(u'space.orthogonal.lobby.ship.list_officers')
+    @orthogonalspace.utils.serial
     async def list_officers(self):
         return self.officers
 
@@ -78,14 +87,17 @@ class Lobby:
         self.session = session
 
     @wamp.register(u'space.orthogonal.lobby.list_universes')
+    @orthogonalspace.utils.serial
     async def list_universes(self):
         return self.universes
 
     @wamp.register(u'space.orthogonal.lobby.list_ships')
+    @orthogonalspace.utils.serial
     async def list_ships(self):
         return self.ships
 
     @wamp.register(u'space.orthogonal.lobby.ship.create')
+    @orthogonalspace.utils.serial
     async def create_ship(self):
         ship = LobbyShip(self.session)
 
@@ -93,6 +105,7 @@ class Lobby:
         self.session.publish(Lobby.EVENT_SHIPS_UPDATED, self.ships)
 
     @wamp.register(u'space.orthogonal.lobby.ship.destroy')
+    @orthogonalspace.utils.serial
     async def destroy_ship(self, ship):
         if ship in self.ships:
             self.ships.remove(ship)

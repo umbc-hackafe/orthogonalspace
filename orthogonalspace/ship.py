@@ -19,3 +19,6 @@ class Ship(ode.Body, Base):
         self.energy = 0
         self.hp = 0
         self.name = name
+
+    def __getstate__(self):
+        return {'id': self.id}

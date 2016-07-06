@@ -25,7 +25,7 @@ import os
 from orthogonalspace.database import Database
 from orthogonalspace.types import *
 from orthogonalspace.lobby import Lobby, LobbyShip
-from orthogonalspace.serializer import  JsonPickleSerializer
+from orthogonalspace.serializer import serialize
 
 LOG = logging.getLogger()
 
@@ -35,6 +35,9 @@ class OrthogonalSpaceComponent(ApplicationSession):
         self.traceback_app = True
         self.db = Database(self.config.extra)
         self.lobby = Lobby(self)
+
+    def publish(self, topic, *args, **kwargs):
+        return super().publish(topic, [serialize(arg) for arg in args], {k: serialize(v) if k != 'options' else v for k,v in kwargs.items()})
 
     async def register_object(self, obj):
         results = await self.register(obj)
@@ -185,7 +188,6 @@ def main():
         os.environ.get("AUTOBAHN_DEMO_ROUTER", u"ws://127.0.0.1:8080/ws"),
         u'orthogonalspace',
         extra=config,
-        serializers=[JsonPickleSerializer()],
     )
     runner.run(OrthogonalSpaceComponent)
 

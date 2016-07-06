@@ -23,6 +23,9 @@ class User(Base):
     def __repr__(self):
         return "<User(name='{0}')>".format(self.name)
 
+    def __getstate__(self):
+        return {'id': self.ID, 'name': self.name}
+
     def generate_hash(self, password):
         """Generate a salted password hash for the new password password
         Do NOT use this to verify passwords. The salt will be different
