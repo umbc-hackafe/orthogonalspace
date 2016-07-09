@@ -40,16 +40,20 @@ class OrthogonalSpaceComponent(ApplicationSession):
     def publish(self, topic, *args, **kwargs):
         return super().publish(topic, [serialize(arg) for arg in args], {k: serialize(v) if k != 'options' else v for k,v in kwargs.items()})
 
+    async def single_register(self, method):
+        if isinstance(method, wamp.protocol.Registration):
+            LOG.debug("Registered procedure {} successfully".format(method))
+        else:
+            LOG.error("Failed to register procedure {}".format(method))
+
     async def register_object(self, obj):
         results = await self.register(obj)
         for res in results:
-            if isinstance(res, wamp.protocol.Registration):
-                LOG.debug("Registered procedure {} successfully".format(res))
-            else:
-                LOG.error("Failed to register procedure {} on {}".format(res, obj))
+            val = await self.single_register(res)
 
     async def onJoin(self, details):
-        for target in [self, self.lobby]:
+        for target in [self, self.lobby, LobbyShip.RPC]:
+            LOG.debug("Registering {}".format(target))
             await self.register_object(target)
 
         results = await self.subscribe(self)

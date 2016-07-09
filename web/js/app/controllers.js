@@ -1,5 +1,16 @@
 var orthogonalControllers = angular.module('orthogonalControllers', []);
 
+function updateShips(res, scope) {
+    if (res != null) {
+         var ships = jsonpickle.decode(res);
+         scope.ships = {};
+
+         for (var i in ships) {
+             scope.ships[ships[i].id] = ships[i];
+         }
+     }
+ }
+
 orthogonalControllers.controller('homeCtrl', ['$scope', '$wamp',
     function($scope, $wamp) {
     }
@@ -52,12 +63,53 @@ orthogonalControllers.controller('lobbyCtrl', ['$scope', '$wamp',
             $wamp.call('space.orthogonal.lobby.ship.create').then(
                 function(res) {
                     if (res != null) {
-                        console.log(res);
+                        $scope.ship = jsonpickle.decode(res);
+                        $scope.ships[$scope.ship.id] = $scope.ship;
                     } else {
                         $scope.message = "Error: Could not create ship.";
                     }
                 }
-            )
+            );
         };
+
+        $scope.chooseShip = function(ship) {
+            $scope.ship = ship;
+        };
+
+        $scope.setShipName = function(name) {
+            $wamp.call('space.orthogonal.lobby.ship.set_name', [jsonpickle.encode($scope.ship), jsonpickle.encode(name)]).then(
+                function(res) {
+                    if (res != null) {
+                        //$scope.ship = jsonpickle.decode(res);
+                    } else {
+                        $scope.message = "Error: Could not update ship name.";
+                    }
+                }
+            );
+
+            $wamp.publish('space.orthogonal.lobby.ship.updated', [jsonpickle.encode($scope.ship)]);
+        }
+
+        $wamp.call('space.orthogonal.lobby.list_ships').then(
+            function(res) {
+                updateShips(res, $scope);
+            }
+        )
+
+        $wamp.subscribe('space.orthogonal.lobby.event.ships_updated').then(
+            function(res, ships) {
+                updateShips(res, $scope);
+            }
+        );
+
+        $wamp.subscribe('space.orthogonal.lobby.ship.updated',
+            function(data) {
+                var ship = jsonpickle.decode(data[0]);
+
+                orthogonalspace.lobby.LobbyShip.updateFrom(ship);
+            }
+        ).then(function(res) {
+            //
+        });
     }
 ]);

@@ -3,7 +3,12 @@
   <p class="bg-danger">{{ errorMessage }}</p>
   <form>
     <div class="form-group">
+      <strong>Ships</strong>
       <input type="button" class="form-control" id="createShipButton" value="Create Ship" ng-click="createShip()">
+      <input type="text" class="form-control" id="shipName" value="" ng-model="ship.name" ng-disabled="ship === undefined" ng-change="setShipName(ship.name)"/>
+      <ul>
+        <li ng-repeat="ship in ships" ng-click="chooseShip(ship)">{{ ship.name }}</li>
+      </ul>
     </div>
   </form>
 </div>
