@@ -18,39 +18,8 @@ ROLES = list(ROLE_NAMES.keys())
 
 
 class LobbyShip:
+    PREFIX = 'space.orthogonal.lobby.ship.ship{.id}.'
     max_id = 0
-
-    class _RPC(orthogonalspace.utils.ObjectMapper):
-        def __init__(self):
-            super().__init__()
-
-        @wamp.register(u'space.orthogonal.lobby.ship.enlist')
-        @orthogonalspace.utils.serial
-        async def _enlist(self, ship, user, position):
-            await self.canon(ship).enlist(user, position)
-
-        @wamp.register(u'space.orthogonal.lobby.ship.leave')
-        @orthogonalspace.utils.serial
-        async def _leave(self, ship, user, position):
-            await self.canon(ship).leave(user, position)
-
-        @wamp.register(u'space.orthogonal.lobby.ship.set_name')
-        @orthogonalspace.utils.serial
-        async def _set_name(self, ship, name):
-            await self.canon(ship).set_name(name)
-
-        @wamp.register(u'space.orthogonal.lobby.ship.updated')
-        @orthogonalspace.utils.serial
-        async def _name_updated(self, ship, name):
-            self.canon(ship).set_name(name)
-            LOG.info("Name changed to {}".format(name))
-
-        @wamp.register(u'space.orthogonal.lobby.ship.list_officers')
-        @orthogonalspace.utils.serial
-        async def list_officers(self, ship):
-            return self.canon(ship).officers
-
-    RPC = _RPC()
 
     def __init__(self, session, name="Shippy McShipFace", roles=None):
         self.name = name
@@ -63,28 +32,37 @@ class LobbyShip:
         LobbyShip.max_id += 1
         self.id = LobbyShip.max_id
 
-        self.RPC.register(self)
+        orthogonalspace.utils.register_patterns(self, session, 'space.orthogonal.lobby.ship.ship{.id}.')
+
+        session.publish('space.orthogonal.lobby.ship.new', self)
 
     def __getstate__(self):
         return orthogonalspace.utils.filter_attrs(self, 'session', 'max_id')
 
+    def send_update(self):
+        orthogonalspace.utils.publish_prefix(self, self.session, 'updated', self)
+
+    @orthogonalspace.utils.register('set_name')
+    @orthogonalspace.utils.serial
     async def set_name(self, name):
         if isinstance(name, str):
             self.name = name
-            self.session.publish(u'space.orthogonal.lobby.ship.event.updated', self.name)
+            self.send_update()
+            logging.info("set name")
+            return self
         else:
             raise ValueError("`name` must be str")
 
-    async def enlist(self, user, position):
-        if position not in self.roles:
-            raise ValueError("Role '" + position + "' does not exist")
+    @orthogonalspace.utils.register('set_roles')
+    @orthogonalspace.utils.serial
+    async def enlist(self, user, positions):
+        for position in positions:
+            assert position in self.roles
 
-        if position in self.officers and self.officers[position]:
-            raise ValueError("Role '" + position + "' is already taken")
+        self.officers[user] = positions
+        self.send_update()
 
-        self.officers[position] = user
-        self.session.publish(u'space.orthogonal.lobby.ship.event.role_filled', position, user)
-
+    @orthogonalspace.utils.register('leave')
     async def leave(self, user, position):
         if position not in self.roles:
             raise ValueError("Role '" + position + "' does not exist")
@@ -93,8 +71,7 @@ class LobbyShip:
             raise ValueError("User is not enlisted in '" + position + "'")
 
         del self.officers[position]
-        self.session.publish(u'space.orthogonal.lobby.ship.event.role_vacated', position)
-
+        self.send_update()
 
 class Lobby:
     EVENT_SHIPS_UPDATED = u'space.orthogonal.lobby.event.ships_updated'

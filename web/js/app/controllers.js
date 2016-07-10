@@ -1,12 +1,13 @@
 var orthogonalControllers = angular.module('orthogonalControllers', []);
 
-function updateShips(res, scope) {
+function updateShips(res, scope, wamp) {
     if (res != null) {
          var ships = jsonpickle.decode(res);
          scope.ships = {};
 
          for (var i in ships) {
              scope.ships[ships[i].id] = ships[i];
+             ships[i].register(wamp);
          }
      }
  }
@@ -57,14 +58,19 @@ orthogonalControllers.controller('logoutCtrl', ['$scope', '$wamp', '$cookies',
     }
 ]);
 
-orthogonalControllers.controller('lobbyCtrl', ['$scope', '$wamp',
-    function($scope, $wamp) {
+orthogonalControllers.controller('lobbyCtrl', ['$scope', '$wamp', '$cookies',
+    function($scope, $wamp, $cookies) {
+        $scope.selectedRoles = [];
+        $scope.username = $cookies.get('username');
+
         $scope.createShip = function() {
             $wamp.call('space.orthogonal.lobby.ship.create').then(
                 function(res) {
                     if (res != null) {
-                        $scope.ship = jsonpickle.decode(res);
-                        $scope.ships[$scope.ship.id] = $scope.ship;
+                        var ship = jsonpickle.decode(res);
+                        $scope.ships[ship.id] = ship;
+                        ship.register($wamp);
+                        $scope.chooseShip(ship)
                     } else {
                         $scope.message = "Error: Could not create ship.";
                     }
@@ -72,14 +78,65 @@ orthogonalControllers.controller('lobbyCtrl', ['$scope', '$wamp',
             );
         };
 
+        $wamp.subscribe('space.orthogonal.lobby.ship.new',
+            function(res) {
+                var ship = jsonpickle.decode(res[0]);
+                console.log('ship was createde', ship);
+                ship.register($wamp);
+                $scope.ships[ship.id] = ship;
+            }
+         )
+
         $scope.chooseShip = function(ship) {
+            if ($scope.ship) {
+                if ($scope.username in $scope.ship.officers) {
+                    delete $scope.ship.officers[$scope.username];
+                }
+            }
+            $scope.selectedRoles = [];
+
             $scope.ship = ship;
+
+            if ($scope.username in $scope.ship.officers) {
+                for (var k in $scope.ship.officers[$scope.username]) {
+                    var role = $scope.ship.officers[$scope.username][k];
+                    $scope.selectedRoles[role] = true;
+                }
+            } else {
+                $scope.ship.officers[$scope.username] = [];
+            }
         };
 
+        $scope.pickRole = function(role) {
+            var selected = [];
+            for (var k in $scope.selectedRoles) {
+                if ($scope.selectedRoles[k]) {
+                    selected.push(k);
+                }
+            }
+
+            $scope.ship.officers[$scope.username] = selected;
+            $wamp.call('space.orthogonal.lobby.ship.ship' + $scope.ship.id + '.set_roles', [jsonpickle.encode($scope.username), selected]).then(
+                function(res) {
+                    console.log('set roles res', res);
+                }
+            )
+
+            /*
+            if (role in $scope.ship.officers[$scope.username]) {
+                var index = $scope.ship.officers[$scope.username].indexOf(role);
+                $scope.ship.officers[$scope.username].splice(index, 1);
+            } else {
+                $scope.ship.officers[$scope.username].push(role);
+            }
+            */
+        }
+
         $scope.setShipName = function(name) {
-            $wamp.call('space.orthogonal.lobby.ship.set_name', [jsonpickle.encode($scope.ship), jsonpickle.encode(name)]).then(
+            $wamp.call('space.orthogonal.lobby.ship.ship' + $scope.ship.id + '.set_name', [jsonpickle.encode(name)]).then(
                 function(res) {
                     if (res != null) {
+                        console.log('call res', res);
                         //$scope.ship = jsonpickle.decode(res);
                     } else {
                         $scope.message = "Error: Could not update ship name.";
@@ -87,29 +144,20 @@ orthogonalControllers.controller('lobbyCtrl', ['$scope', '$wamp',
                 }
             );
 
-            $wamp.publish('space.orthogonal.lobby.ship.updated', [jsonpickle.encode($scope.ship)]);
+            $wamp.publish('space.orthogonal.lobby.ship.ship' + $scope.ship.id + '.updated', [jsonpickle.encode($scope.ship)]);
         }
 
         $wamp.call('space.orthogonal.lobby.list_ships').then(
             function(res) {
-                updateShips(res, $scope);
+                updateShips(res, $scope, $wamp);
             }
         )
 
-        $wamp.subscribe('space.orthogonal.lobby.event.ships_updated').then(
-            function(res, ships) {
-                updateShips(res, $scope);
+        $wamp.subscribe('space.orthogonal.lobby.event.ships_updated',
+            function(datas) {
+                res = jsonpickle.decode(datas[0]);
+                updateShips(res, $scope, $wamp);
             }
-        );
-
-        $wamp.subscribe('space.orthogonal.lobby.ship.updated',
-            function(data) {
-                var ship = jsonpickle.decode(data[0]);
-
-                orthogonalspace.lobby.LobbyShip.updateFrom(ship);
-            }
-        ).then(function(res) {
-            //
-        });
+        ).then(function(res){});
     }
 ]);

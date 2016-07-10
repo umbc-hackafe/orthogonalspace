@@ -52,7 +52,7 @@ class OrthogonalSpaceComponent(ApplicationSession):
             val = await self.single_register(res)
 
     async def onJoin(self, details):
-        for target in [self, self.lobby, LobbyShip.RPC]:
+        for target in [self, self.lobby]:
             LOG.debug("Registering {}".format(target))
             await self.register_object(target)
 

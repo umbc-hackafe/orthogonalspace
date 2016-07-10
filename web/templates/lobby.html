@@ -5,9 +5,22 @@
     <div class="form-group">
       <strong>Ships</strong>
       <input type="button" class="form-control" id="createShipButton" value="Create Ship" ng-click="createShip()">
+      <ul>
+        <li ng-repeat="ship in ships" ng-click="chooseShip(ship)">[<span class="ship-members" ng-watch="ship.officers">{{ Object.keys(ship.officers).length }}</span>] <span class="ship-name">{{ ship.name }}</span></li>
+      </ul>
+    </div>
+
+    <div id="ship-info" class="form-group" ng-if="ship">
       <input type="text" class="form-control" id="shipName" value="" ng-model="ship.name" ng-disabled="ship === undefined" ng-change="setShipName(ship.name)"/>
       <ul>
-        <li ng-repeat="ship in ships" ng-click="chooseShip(ship)">{{ ship.name }}</li>
+        <li ng-repeat="role in ship.roles"><label><input type="checkbox" ng-model="selectedRoles[role]" ng-checked="ship.officers[username].indexOf(role) > -1" ng-watch="ship.officers[username]" ng-change="pickRole(role)">{{ role|lowercase }}</label></li>
+      </ul>
+      <ul>
+        <li ng-watch="ship.officers" ng-repeat="(name, roles) in ship.officers"><span ng-if="name == username"><strong>{{ name }}</strong></span><span ng-if="name != username">{{ name }}</span>
+          <ul>
+            <li ng-repeat="role in roles">{{ role | lowercase }}</li>
+          </ul>
+        </li>
       </ul>
     </div>
   </form>

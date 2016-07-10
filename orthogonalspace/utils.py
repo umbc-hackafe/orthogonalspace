@@ -1,5 +1,6 @@
 import functools
-import logging
+import inspect
+import asyncio
 
 from orthogonalspace.serializer import serialize, unserialize
 
@@ -34,6 +35,37 @@ class ObjectMapper:
 
         if key:
             return self._items[key]
+
+
+def register(uri_pattern):
+    def decorator(f):
+        setattr(f, "_orth_uri_pattern", uri_pattern)
+        return f
+
+    return decorator
+
+
+def register_patterns(obj, session, prefix=None):
+    coros = []
+    for name, func in inspect.getmembers(obj, lambda f: inspect.ismethod(f) or inspect.isfunction(f)):
+        if hasattr(func, "_orth_uri_pattern"):
+            pattern = getattr(func, "_orth_uri_pattern").format(obj)
+
+            if prefix is None and hasattr(obj, 'PREFIX'):
+                prefix = getattr(obj, 'PREFIX')
+
+            if prefix:
+                pattern = prefix.format(obj) + pattern
+
+            coros.append(session.register(func, pattern))
+
+    return asyncio.gather(*coros)
+
+
+def publish_prefix(obj, session, topic, *args, **kwargs):
+    prefix = getattr(obj, 'PREFIX', '')
+    topic = prefix + topic
+    return session.publish(topic, *args, **kwargs)
 
 
 def serial(f):
