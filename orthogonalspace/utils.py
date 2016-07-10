@@ -65,6 +65,7 @@ def register_patterns(obj, session, prefix=None):
 def publish_prefix(obj, session, topic, *args, **kwargs):
     prefix = getattr(obj, 'PREFIX', '')
     topic = prefix + topic
+    topic = topic.format(obj)
     return session.publish(topic, *args, **kwargs)
 
 

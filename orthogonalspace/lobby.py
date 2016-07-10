@@ -48,7 +48,6 @@ class LobbyShip:
         if isinstance(name, str):
             self.name = name
             self.send_update()
-            logging.info("set name")
             return self
         else:
             raise ValueError("`name` must be str")

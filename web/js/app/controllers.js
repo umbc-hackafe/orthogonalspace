@@ -105,6 +105,10 @@ orthogonalControllers.controller('lobbyCtrl', ['$scope', '$wamp', '$cookies',
             } else {
                 $scope.ship.officers[$scope.username] = [];
             }
+
+            $scope.pickRole();
+
+            $cookies.put('lastShip', $scope.ship.id);
         };
 
         $scope.pickRole = function(role) {
@@ -143,13 +147,19 @@ orthogonalControllers.controller('lobbyCtrl', ['$scope', '$wamp', '$cookies',
                     }
                 }
             );
-
-            $wamp.publish('space.orthogonal.lobby.ship.ship' + $scope.ship.id + '.updated', [jsonpickle.encode($scope.ship)]);
         }
 
         $wamp.call('space.orthogonal.lobby.list_ships').then(
             function(res) {
+
                 updateShips(res, $scope, $wamp);
+
+                var lastShip = $cookies.get('lastShip');
+                if (lastShip !== undefined) {
+                    if ($scope.ships.hasOwnProperty(lastShip)) {
+                        $scope.chooseShip($scope.ships[lastShip]);
+                    }
+                }
             }
         )
 
