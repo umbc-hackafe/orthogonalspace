@@ -1,3 +1,4 @@
+if (false) {
 var orthogonalControllers = angular.module('orthogonalControllers', []);
 
 function updateShips(res, scope, wamp) {
@@ -10,7 +11,12 @@ function updateShips(res, scope, wamp) {
              ships[i].register(wamp);
          }
      }
-}
+ }
+
+orthogonalControllers.controller('homeCtrl', ['$scope', '$wamp',
+    function($scope, $wamp) {
+    }
+]);
 
 orthogonalControllers.controller('loginCtrl', ['$scope', '$wamp', '$location', '$cookies',
     function($scope, $wamp, $location, $cookies) {
@@ -117,7 +123,6 @@ orthogonalControllers.controller('lobbyCtrl', ['$scope', '$wamp', '$cookies',
             $scope.ship.officers[$scope.username] = selected;
             $wamp.call('space.orthogonal.lobby.ship.ship' + $scope.ship.id + '.set_roles', [jsonpickle.encode($scope.username), selected]).then(
                 function(res) {
-                    console.log('set roles res', res);
                 }
             )
 
@@ -129,15 +134,7 @@ orthogonalControllers.controller('lobbyCtrl', ['$scope', '$wamp', '$cookies',
                 $scope.ship.officers[$scope.username].push(role);
             }
             */
-        };
-
-        $scope.updateReady = function() {
-            $wamp.call('space.orthogonal.lobby.ship.ship' + $scope.ship.id + '.set_ready', [jsonpickle.encode($scope.username), jsonpickle.encode($scope.ship.ready[$scope.username])]).then(
-                function(res) {
-                    console.log(res);
-                }
-            );
-        };
+        }
 
         $scope.setShipName = function(name) {
             $wamp.call('space.orthogonal.lobby.ship.ship' + $scope.ship.id + '.set_name', [jsonpickle.encode(name)]).then(
@@ -173,5 +170,39 @@ orthogonalControllers.controller('lobbyCtrl', ['$scope', '$wamp', '$cookies',
         ).then(function(res){});
     }
 ]);
+}
 
-setupHelmController(orthogonalControllers);
+
+function setupHelmController(orthogonalControllers) {
+    orthogonalControllers.controller('helmCtrl', ['$scope', '$wamp', '$cookies', '$location',
+        function($scope, $wamp, $cookies, $location) {
+            $wamp.subscribe('space.orthogonal.game.tick',
+                function(payload) {
+                    var data = jsonpickle.decode(payload);
+                    console.log('!NYI! Got tick data', data);
+                }
+            ).then(function(res){});
+
+            var shipId = $cookies.get('lastShip');
+
+            if (shipId !== undefined) {
+                $wamp.call('space.orthogonal.lobby.ship.ship' + shipId + '.get').then(
+                    function(res) {
+                        if (res != null) {
+                            var lobbyShip = jsonpickle.decode(res);
+                            if (lobbyShip.locked) {
+                                $scope.ship = lobbyShip.entity_ship;
+                                $scope.ship.register($wamp);
+                            } else {
+                                console.error("Ship selected is not embarked!");
+                                $location.path('/');
+                            }
+                        } else {
+                            console.error("Got null result for space.orthogonal.lobby.ship.shipX.get");
+                        }
+                    }
+                );
+            }
+        }
+    ]);
+}
