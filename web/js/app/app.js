@@ -11,8 +11,8 @@ orthogonal.config(['$routeProvider',
     function($routeProvider) {
         $routeProvider.
             when('/', {
-                templateUrl: 'templates/home.html',
-                controller: 'homeCtrl'
+                templateUrl: 'templates/lobby.html',
+                controller: 'lobbyCtrl'
             }).
             when('/login', {
                 templateUrl: 'templates/login.html',

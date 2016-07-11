@@ -10,12 +10,7 @@ function updateShips(res, scope, wamp) {
              ships[i].register(wamp);
          }
      }
- }
-
-orthogonalControllers.controller('homeCtrl', ['$scope', '$wamp',
-    function($scope, $wamp) {
-    }
-]);
+}
 
 orthogonalControllers.controller('loginCtrl', ['$scope', '$wamp', '$location', '$cookies',
     function($scope, $wamp, $location, $cookies) {
