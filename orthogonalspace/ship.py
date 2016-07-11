@@ -13,6 +13,10 @@ class Ship(ode.Body, Base):
     hp = Column(Integer)
     energy = Column(Integer)
 
+    @staticmethod
+    def from_lobbyship(lobby_ship, universe):
+        return Ship(universe, lobby_ship.name)
+
     def __init__(self, universe, name="Ship"):
         super(Ship, self).__init__(universe)
 
@@ -21,4 +25,4 @@ class Ship(ode.Body, Base):
         self.name = name
 
     def __getstate__(self):
-        return {'id': self.id}
+        return orthogonalspace.utils.filter_attrs(self, 'session')

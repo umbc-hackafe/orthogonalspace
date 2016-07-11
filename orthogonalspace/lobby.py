@@ -28,6 +28,14 @@ class LobbyShip:
             roles = ROLES
         self.roles = roles
         self.session = session
+        self.ready = {}
+
+        #: If set, ship can't be updated anymore, e.g. because it's in play
+        self.locked = False
+
+        #: ID of the entity created when the ship is instantiated
+        self.entity_id = None
+        self.entity_ship = None
 
         LobbyShip.max_id += 1
         self.id = LobbyShip.max_id
@@ -42,9 +50,41 @@ class LobbyShip:
     def send_update(self):
         orthogonalspace.utils.publish_prefix(self, self.session, 'updated', self)
 
+    @orthogonalspace.utils.register('get')
+    @orthogonalspace.utils.serial
+    async def get(self):
+        return self
+
+    @orthogonalspace.utils.register('ready')
+    @orthogonalspace.utils.serial
+    async def get_ready(self):
+        return all((self.ready.get(officer, False) for officer in self.officers.keys()))
+
+    @orthogonalspace.utils.register('set_ready')
+    @orthogonalspace.utils.serial
+    async def set_ready(self, username, ready):
+        self.ready[username] = bool(ready)
+        if username not in self.officers:
+            self.officers[username] = []
+
+        self.send_update()
+
+    @orthogonalspace.utils.register('launch')
+    @orthogonalspace.utils.serial
+    async def launch(self, universe):
+        ship = orthogonalspace.ship.Ship.from_lobbyship(self, universe)
+        self.locked = True
+        self.entity_ship = ship
+        self.entity_id = ship.id
+
+        orthogonalspace.utils.publish_prefix(self, self.session, 'launched', self.entity_id)
+
     @orthogonalspace.utils.register('set_name')
     @orthogonalspace.utils.serial
     async def set_name(self, name):
+        if self.locked:
+            raise ValueError("Ship is locked; name cannot be set.")
+
         if isinstance(name, str):
             self.name = name
             self.send_update()
@@ -57,6 +97,9 @@ class LobbyShip:
     async def enlist(self, user, positions):
         for position in positions:
             assert position in self.roles
+
+        if user not in self.ready:
+            self.ready[user] = False
 
         self.officers[user] = positions
         self.send_update()

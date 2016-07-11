@@ -129,7 +129,15 @@ orthogonalControllers.controller('lobbyCtrl', ['$scope', '$wamp', '$cookies',
                 $scope.ship.officers[$scope.username].push(role);
             }
             */
-        }
+        };
+
+        $scope.updateReady = function() {
+            $wamp.call('space.orthogonal.lobby.ship.ship' + $scope.ship.id + '.set_ready', [jsonpickle.encode($scope.username), jsonpickle.encode($scope.ship.ready[$scope.username])]).then(
+                function(res) {
+                    console.log(res);
+                }
+            );
+        };
 
         $scope.setShipName = function(name) {
             $wamp.call('space.orthogonal.lobby.ship.ship' + $scope.ship.id + '.set_name', [jsonpickle.encode(name)]).then(
