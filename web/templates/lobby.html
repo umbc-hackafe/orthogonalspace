@@ -12,7 +12,7 @@
 
     <div id="ship-info" class="form-group" ng-if="ship">
       <input type="text" class="form-control" id="shipName" value="" ng-model="ship.name" ng-disabled="ship === undefined || ship.allReady()" ng-change="setShipName(ship.name)"/>
-      <strong><label><input type="checkbox" ng-model="ship.ready[username]" ng-change="updateReady()">Ready</label></strong> <input type="button" ng-disabled="!ship.allReady()" value="Start"/>
+      <strong><label><input type="checkbox" ng-model="ship.ready[username]" ng-change="updateReady()">Ready</label></strong> <input type="button" ng-disabled="!ship.allReady()" value="Start" ng-click="launch()"/>
       <ul>
         <li ng-repeat="role in ship.roles"><label><input type="checkbox" ng-disabled="ship.allReady()" ng-model="selectedRoles[role]" ng-checked="ship.officers[username].indexOf(role) > -1" ng-watch="ship.officers[username]" ng-change="pickRole(role)">{{ role|lowercase }}</label></li>
       </ul>

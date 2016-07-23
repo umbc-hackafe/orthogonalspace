@@ -163,7 +163,7 @@ orthogonalControllers.controller('lobbyCtrl', ['$scope', '$wamp', '$cookies',
                     }
                 }
             }
-        )
+        );
 
         $wamp.subscribe('space.orthogonal.lobby.event.ships_updated',
             function(datas) {
@@ -171,6 +171,22 @@ orthogonalControllers.controller('lobbyCtrl', ['$scope', '$wamp', '$cookies',
                 updateShips(res, $scope, $wamp);
             }
         ).then(function(res){});
+
+        $scope.launch = function() {
+            // TODO: Don't hardcode the universe ID to 0
+            $wamp.call('space.orthogonal.lobby.ship.ship' + $scope.ship.id + '.launch', [0]).then(
+                function(res) {
+                    console.log(res);
+                }
+            );
+        }
+
+        $wamp.subscribe('space.orthogonal.lobby.ship.launched',
+            function(datas) {
+                res = jsonpickle.decode(datas);
+                console.log(res);
+            }
+        )
     }
 ]);
 
