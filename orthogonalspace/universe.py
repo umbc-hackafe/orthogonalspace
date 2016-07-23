@@ -1,6 +1,6 @@
 import ode
 
-class Universe(ode.World):
+class Universe:
     def __init__(self, name, *args, **kwargs):
-        super(Universe, self).__init__(*args, **kwargs)
+        self.world = ode.World()
         self.name = name

@@ -1,7 +1,9 @@
 import orthogonalspace.utils
-from orthogonalspace import serializer
+import orthogonalspace.ship
 from autobahn import wamp
 import logging
+
+from orthogonalspace import universe
 
 LOG = logging.getLogger('orthogonalspace.lobby')
 
@@ -21,7 +23,7 @@ class LobbyShip:
     PREFIX = 'space.orthogonal.lobby.ship.ship{.id}.'
     max_id = 0
 
-    def __init__(self, session, name="Shippy McShipFace", roles=None):
+    def __init__(self, session, lobby, name="Shippy McShipFace", roles=None):
         self.name = name
         self.officers = {}
         if roles is None:
@@ -29,6 +31,8 @@ class LobbyShip:
         self.roles = roles
         self.session = session
         self.ready = {}
+
+        self.lobby = lobby
 
         #: If set, ship can't be updated anymore, e.g. because it's in play
         self.locked = False
@@ -45,7 +49,7 @@ class LobbyShip:
         session.publish('space.orthogonal.lobby.ship.new', self)
 
     def __getstate__(self):
-        return orthogonalspace.utils.filter_attrs(self, 'session', 'max_id')
+        return orthogonalspace.utils.filter_attrs(self, 'session', 'max_id', 'lobby')
 
     def send_update(self):
         orthogonalspace.utils.publish_prefix(self, self.session, 'updated', self)
@@ -72,7 +76,7 @@ class LobbyShip:
     @orthogonalspace.utils.register('launch')
     @orthogonalspace.utils.serial
     async def launch(self, universe):
-        ship = orthogonalspace.ship.Ship.from_lobbyship(self, universe)
+        ship = orthogonalspace.ship.Ship.from_lobbyship(self, self.lobby.universes[universe])
         self.locked = True
         self.entity_ship = ship
         self.entity_id = ship.id
@@ -119,7 +123,7 @@ class Lobby:
     EVENT_SHIPS_UPDATED = u'space.orthogonal.lobby.event.ships_updated'
 
     def __init__(self, session):
-        self.universes = []
+        self.universes = [universe.Universe("The Universe")]
         self.ships = []
         self.session = session
 
@@ -136,7 +140,7 @@ class Lobby:
     @wamp.register(u'space.orthogonal.lobby.ship.create')
     @orthogonalspace.utils.serial
     async def create_ship(self):
-        ship = LobbyShip(self.session)
+        ship = LobbyShip(self.session, self)
 
         self.ships.append(ship)
         self.session.publish(Lobby.EVENT_SHIPS_UPDATED, self.ships)

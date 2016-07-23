@@ -78,6 +78,14 @@ def serial(f):
     return wrapper
 
 
+def update(new_dict, old_dict):
+    old_dict.update(new_dict)
+    return old_dict
+
+def include_attrs(obj, *keys):
+    return {k: getattr(obj, k, None) for k in keys}
+
+
 def filter_attrs(obj, *keys):
     return {k: v for k, v in getattr(obj, '__dict__', {}).items() if k not in keys}
 
