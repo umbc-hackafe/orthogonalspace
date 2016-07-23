@@ -16,50 +16,95 @@ function registerUpdate(self, wamp, key) {
     );
 }
 
+
+class UpdatableBase {
+    prefix() {
+        return '!';
+    }
+
+    wampKey() {
+        return this.prefix() + this.id;
+    }
+
+    subscribe(suffix, callback) {
+        this._wamp.subscribe(this.wampKey() + '.' + suffix, callback);
+    }
+
+    register(wamp) {
+        this._wamp = wamp;
+        registerUpdate(this, wamp, this.prefix());
+    }
+
+    call(suffix, args, kwargs) {
+        return this._wamp.call(this.wampKey() + '.' + suffix, args, kwargs);
+    }
+
+    __setstate__(props) {
+        updateObj(this, props);
+    }
+}
+
 window.orthogonalspace = {
     lobby: {
-        LobbyShip: class {
+        LobbyShip: class extends UpdatableBase {
+            prefix() { return 'space.orthogonal.lobby.ship.ship'; }
+
             register(wamp) {
-                registerUpdate(this, wamp, 'space.orthogonal.lobby.ship.ship')
+                super.register(wamp);
+                this.subscribe('launched',
+                    function(res) {
+                        var data = jsonpickle.decode(res);
+                        console.log(res);
+                    }
+                );
             }
 
-	        __setstate__(props) {
-	            updateObj(this, props);
-	        }
-
-	        allReady() {
-	            console.log('all ready?');
+            allReady() {
                 for (var k in this.officers) {
                     if (!this.ready[k]) return false;
                 }
 
-                console.log('yes');
                 return true;
-	        }
+            }
+        }
+    },
+
+    body: {
+        Vector: class {
+
+            __setstate__(props) {
+                this.x = props.x;
+                this.y = props.y;
+                this.z = props.z;
+            }
         }
     },
 
     ship: {
-        Ship: class {
-            register(wamp) {
-                registerUpdate(this, wamp, 'space.orthogonal.ship.ship');
+        Ship: class extends UpdatableBase {
+            prefix() { return 'space.orthogonal.ship.ship'; }
+
+            addThrust() {
+                this.call('add_thrust', [10, 0, 0]).then(
+                    function(res) {
+                        console.log(res);
+                    }
+                )
             }
 
-            __setstate__(props) {
-                updateObj(this, props);
+            decreaseThrust() {
+                this.call('add_thrust', [-10, 0, 0]).then(
+                    function(res) {
+                        console.log(res);
+                    }
+                )
             }
         }
     },
 
     universe: {
-        Universe: class {
-            register(wamp) {
-                registerUpdate(this, wamp, 'space.orthogonal.universe.universe');
-            }
-
-            __setstate__(props) {
-                updateObj(this, props);
-            }
+        Universe: class extends UpdatableBase {
+            prefix() { return 'space.orthogonal.universe.universe'; }
         }
     }
 };
