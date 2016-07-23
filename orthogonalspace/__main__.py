@@ -22,6 +22,8 @@ import logging
 import json
 import sys
 import os
+
+import orthogonalspace
 from orthogonalspace.database import Database
 from orthogonalspace.types import *
 from orthogonalspace.lobby import Lobby, LobbyShip
@@ -62,9 +64,8 @@ class OrthogonalSpaceComponent(ApplicationSession):
                 LOG.debug("Subscribed handler with subscription ID {}".format(res))
             else:
                 LOG.error("Failed to subscribe handler: {}".format(res))
-        while True:
-            self.publish(u'space.orthogonal.heartbeat', 'Hi')
-            await asyncio.sleep(1)
+
+        orthogonalspace.main_loop(self, self.db, self.lobby)
 
     @wamp.register(u'com.add_user')
     def add_user(self, username, password):

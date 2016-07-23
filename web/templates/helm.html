@@ -2,7 +2,7 @@
     <div class="game-window">
         HP: <span class="ship-health-text">{{ ship.hp }}</span><br/>
         Position: <span class="ship-coords">{{ ship.position.x }}, {{ ship.position.y }}, {{ ship.position.z }}</span><br/>
-        Velocity: <span class="ship-speed">0, 0, 0</span><br/>
+        Velocity: <span class="ship-speed">{{ ship.velocity.x }}, {{ ship.velocity.y }}, {{ ship.velocity.z }}</span><br/>
         Thrust: <span class="ship-thrust">{{ ship.force.x }}, {{ ship.force.y }}, {{ ship.force.z }} ({{ ship.force.norm() }} N)</span>
     </div>
     <form>

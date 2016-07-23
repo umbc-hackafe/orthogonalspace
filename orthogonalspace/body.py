@@ -104,9 +104,13 @@ class Body:
     def __init__(self, universe, *args, **kwargs):
         self.universe = universe
         self.body = ode.Body(universe.world)
+        self.universe.add_entity(self)
 
     def __getstate__(self):
         return utils.include_attrs(self, 'mass', 'position', 'velocity', 'force')
+
+    def do_tick(self, dt):
+        pass
 
     @property
     def mass(self):

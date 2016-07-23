@@ -31,21 +31,22 @@ class Ship(Body, Base):
 
         self.session = session
 
+        self.thrust = 0
+        self.heading = Vector(1, 0, 0).normalize()
+
         utils.register_patterns(self, session, 'space.orthogonal.ship.ship{.id}.')
+
+    def do_tick(self, dt):
+        self.force += self.thrust * self.heading
 
     def send_update(self):
         utils.publish_prefix(self, self.session, 'updated', self)
 
-    @property
-    def heading(self):
-        return 0.0
-
     @utils.register('add_thrust')
     @utils.serial
-    async def add_thrust(self, x, y, z):
-        self.force += Vector(x, y, z)
-        self.send_update()
-        return self.force
+    async def add_thrust(self, n):
+        self.thrust += n
+        return self.thrust
 
     def __getstate__(self):
         return utils.update(utils.include_attrs(self, 'id', 'energy', 'hp', 'name', 'heading'), super().__getstate__())

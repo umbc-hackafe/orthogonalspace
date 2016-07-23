@@ -88,7 +88,7 @@ window.orthogonalspace = {
             prefix() { return 'space.orthogonal.ship.ship'; }
 
             addThrust() {
-                this.call('add_thrust', [10, 0, 0]).then(
+                this.call('add_thrust', [10]).then(
                     function(res) {
                         console.log(res);
                     }
@@ -96,7 +96,7 @@ window.orthogonalspace = {
             }
 
             decreaseThrust() {
-                this.call('add_thrust', [-10, 0, 0]).then(
+                this.call('add_thrust', [-10]).then(
                     function(res) {
                         console.log(res);
                     }
