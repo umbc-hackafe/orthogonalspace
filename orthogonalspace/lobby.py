@@ -16,7 +16,7 @@ ROLE_NAMES = {
     "WEAPONS": "Weapons Officer",
 }
 
-ROLES = list(ROLE_NAMES.keys())
+ROLES = list(sorted(ROLE_NAMES.keys()))
 
 
 class LobbyShip:
