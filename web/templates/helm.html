@@ -1,7 +1,14 @@
 <div class="container">
     <div class="game-window">
         <span class="ship-health-text">{{ ship.hp }}</span>
+        <span class="ship-coords">{{ ship.location[0] }}, {{ ship.location[1] }}, {{ ship.location[2] }}</span>
     </div>
+    <form>
+        <div class="form-group">
+            <input type="button" class="form-control" id="goFasterButton" value="Go More Faster" ng-click="ship.addThrust()"/>
+            <input type="button" class="form-control" id="goSlowerButton" value="Go Less Faster" ng-click="ship.decreaseThrust()"/>
+        </div>
+    </form>
     <!--<h1>Lobby</h1>
     <p class="bg-danger">{{ errorMessage }}</p>
     <form>
