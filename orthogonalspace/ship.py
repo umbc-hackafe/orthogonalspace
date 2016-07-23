@@ -8,6 +8,7 @@ from orthogonalspace import utils
 Base = declarative_base()
 
 class Ship(Body, Base):
+    PREFIX = 'space.orthogonal.ship.ship{.id}.'
     __tablename__ = 'ship'
     id = Column(Integer, primary_key=True)
     name = Column(String)
