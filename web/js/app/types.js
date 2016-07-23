@@ -71,6 +71,9 @@ window.orthogonalspace = {
 
     body: {
         Vector: class {
+            norm() {
+                return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+            }
 
             __setstate__(props) {
                 this.x = props.x;
