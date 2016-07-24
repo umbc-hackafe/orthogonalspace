@@ -76,10 +76,12 @@ class LobbyShip:
     @orthogonalspace.utils.register('launch')
     @orthogonalspace.utils.serial
     async def launch(self, universe):
-        ship = orthogonalspace.ship.Ship.from_lobbyship(self, self.lobby.universes[universe])
-        self.locked = True
-        self.entity_ship = ship
-        self.entity_id = ship.id
+        if not self.entity_ship:
+            ship = orthogonalspace.ship.Ship.from_lobbyship(self, self.lobby.universes[universe])
+            self.locked = True
+            self.entity_ship = ship
+            self.entity_id = ship.id
+            self.send_update()
 
         orthogonalspace.utils.publish_prefix(self, self.session, 'launched', self.entity_id)
 
