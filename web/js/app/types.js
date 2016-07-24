@@ -87,16 +87,8 @@ window.orthogonalspace = {
         Ship: class extends UpdatableBase {
             prefix() { return 'space.orthogonal.ship.ship'; }
 
-            addThrust() {
-                this.call('add_thrust', [10]).then(
-                    function(res) {
-                        console.log(res);
-                    }
-                )
-            }
-
-            decreaseThrust() {
-                this.call('add_thrust', [-10]).then(
+            setThrust(pct) {
+                this.call('set_throttle', [pct]).then(
                     function(res) {
                         console.log(res);
                     }
