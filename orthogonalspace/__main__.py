@@ -171,7 +171,6 @@ def main():
     elif quiet == 2:
         level = logging.CRITICAL + 1
 
-    logging.basicConfig(level=level)
 
     config = {}
 
