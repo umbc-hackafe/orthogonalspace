@@ -65,7 +65,8 @@ def step(counter, session, event_loop, db, lobby, space, joint_group):
                 do_send = entity.do_tick(STEP_SIZE)
 
             if hasattr(entity, 'send_update'):
-                if do_send or (not count % FORCE_UPDATE_FREQ):
+                # Offset force updates by the entity ID so they're more spread out
+                if do_send or (not (count + entity.id) % FORCE_UPDATE_FREQ):
                     event_loop.call_soon(entity.send_update)
 
         joint_group.empty()
