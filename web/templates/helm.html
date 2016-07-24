@@ -1,14 +1,15 @@
 <div class="container">
     <div class="game-window">
         HP: <span class="ship-health-text">{{ ship.hp }}</span><br/>
-        Position: <span class="ship-coords">{{ ship.position.x }}, {{ ship.position.y }}, {{ ship.position.z }}</span><br/>
-        Velocity: <span class="ship-speed">{{ ship.velocity.x }}, {{ ship.velocity.y }}, {{ ship.velocity.z }}</span><br/>
-        Thrust: <span class="ship-thrust">{{ ship.force.x }}, {{ ship.force.y }}, {{ ship.force.z }} ({{ ship.force.norm() }} N)</span>
+        Energy: <span class="ship-energy">{{ ship.stored_energy | number }}</span><br/>
+        Position: <span class="ship-coords">{{ ship.position.x | number }}, {{ ship.position.y | number }}, {{ ship.position.z | number }}</span><br/>
+        Velocity: <span class="ship-speed">{{ ship.velocity.norm() | number }} m/s</span><br/>
+        Thrust: <span class="ship-thrust">{{ ship.force.x | number }}, {{ ship.force.y | number }}, {{ ship.force.z | number }} ({{ ship.force.norm() | number }} N)</span><br/>
+        Heat: <span class="ship-heat">{{ ship.heat | number }}</span>
     </div>
     <form>
         <div class="form-group">
-            <input type="button" class="form-control" id="goFasterButton" value="Go More Faster" ng-click="ship.addThrust()"/>
-            <input type="button" class="form-control" id="goSlowerButton" value="Go Less Faster" ng-click="ship.decreaseThrust()"/>
+            <input type="range" min="-1" max="1" step=".01" class="form-control" id="thrustSlider" value="0" ng-model="ship.throttle" ng-change="ship.setThrust(ship.throttle)"/>
         </div>
     </form>
 </div>
