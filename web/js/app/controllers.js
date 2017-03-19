@@ -191,3 +191,4 @@ orthogonalControllers.controller('lobbyCtrl', ['$scope', '$wamp', '$cookies',
 ]);
 
 setupHelmController(orthogonalControllers);
+setupMapController(orthogonalControllers);

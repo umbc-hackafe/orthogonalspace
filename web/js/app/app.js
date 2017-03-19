@@ -33,6 +33,31 @@ orthogonal.config(['$routeProvider',
     }
 ]);
 
+orthogonal.factory('entityService', function($rootScope) {
+    var entityService = {};
+
+    entityService.entities = [];
+
+    entityService.registerEntity = function(entity) {
+        entityService.entities.push(entity);
+    }
+
+    entityService.broadcastEntities = function() {
+        $rootScope.$broadcast('entitiesUpdated', entityService.entities);
+    }
+
+    entityService.updateEntities = function(entities) {
+        entityService.entities = entities;
+        entityService.broadcastEntities();
+    }
+
+    entityService.entityUpdated = function(entity) {
+        entityService.broadcastEntities();
+    }
+
+    return entityService;
+});
+
 orthogonal.run(function($cookies, $location, $wamp, $rootScope) {
     $rootScope.$on("$routeChangeStart", function(event, next, current) {
         if (next.templateUrl === "templates/login.html") {

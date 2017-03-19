@@ -2,7 +2,7 @@ function updateObj(a, b) {
     for (var attr in b) {
         if (b.hasOwnProperty(attr)) {
             a[attr] = b[attr];
-         }
+        }
     }
 }
 
@@ -12,6 +12,12 @@ function registerUpdate(self, wamp, key) {
             var newObj = jsonpickle.decode(res[0]);
             console.log('updating to', newObj);
             updateObj(self, newObj);
+
+            if (self._updateCb) {
+                self._updateCb(self);
+            } else {
+                console.log("no cb");
+            }
         }
     );
 }
@@ -30,8 +36,9 @@ class UpdatableBase {
         this._wamp.subscribe(this.wampKey() + '.' + suffix, callback);
     }
 
-    register(wamp) {
+    register(wamp, updateCb) {
         this._wamp = wamp;
+        this._updateCb = updateCb;
         registerUpdate(this, wamp, this.prefix());
     }
 
@@ -49,8 +56,8 @@ window.orthogonalspace = {
         LobbyShip: class extends UpdatableBase {
             prefix() { return 'space.orthogonal.lobby.ship.ship'; }
 
-            register(wamp) {
-                super.register(wamp);
+            register(wamp, updateCb) {
+                super.register(wamp, updateCb);
                 this.subscribe('launched',
                     function(res) {
                         var data = jsonpickle.decode(res);
@@ -86,6 +93,11 @@ window.orthogonalspace = {
     ship: {
         Ship: class extends UpdatableBase {
             prefix() { return 'space.orthogonal.ship.ship'; }
+
+            register(wamp, entityService) {
+                console.log(entityService.entityUpdated);
+                super.register(wamp, entityService.entityUpdated);
+            }
 
             setThrust(pct) {
                 this.call('set_throttle', [pct]).then(

@@ -7,9 +7,10 @@
         Thrust: <span class="ship-thrust">{{ ship.force.x | number }}, {{ ship.force.y | number }}, {{ ship.force.z | number }} ({{ ship.force.norm() | number }} N)</span><br/>
         Heat: <span class="ship-heat">{{ ship.heat | number }}</span>
     </div>
+    <ng-include src="'templates/overhead_map.html'"></ng-include>
     <form>
         <div class="form-group">
             <input type="range" min="-1" max="1" step=".01" class="form-control" id="thrustSlider" value="0" ng-model="ship.throttle" ng-change="ship.setThrust(ship.throttle)"/>
         </div>
     </form>
-</div>
+</>

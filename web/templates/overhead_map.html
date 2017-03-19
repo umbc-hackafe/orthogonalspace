@@ -1,0 +1,11 @@
+<div class="container">
+    <ng-controller ng-controller="mapCtrl">
+    <div class="overhead-map">
+        <form>
+            <input type="button" class="form-control" id="zoomOut" ng-click="zoomOut()" value="-"/>
+            <input type="button" class="form-control" id="zoomIn" ng-click="zoomIn()" value="+"/>
+        </form>
+        <canvas id="overhead-map-canvas" width="{{ map.width }}" height="{{ map.height }}"></canvas>
+    </div>
+    </ng-controller>
+</div>
